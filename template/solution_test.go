@@ -1,6 +1,11 @@
-package template_test
+package dayXX_test
 
-import "testing"
+import (
+	"aoc/dayXX"
+	"testing"
+
+	A "github.com/stretchr/testify/assert"
+)
 
 func TestDay(t *testing.T) {
 	a := A.New(t)
