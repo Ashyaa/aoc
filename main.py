@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import datetime
-from day11 import solution
+from day12 import solution
 
 if __name__ == "__main__":
     startTime = datetime.now()
