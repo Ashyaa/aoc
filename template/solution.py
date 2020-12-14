@@ -20,8 +20,10 @@ def second() -> None:
 
 
 def run() -> None:
-    tmp = read_input()
+    ins = read_input()
     print("First step:")
-    first()
+    # step1
+    print(first(ins))
     print("\nSecond step:")
-    second()
+    # step2
+    print(second(ins))

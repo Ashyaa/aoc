@@ -1,7 +1,7 @@
-package dayXX_test
+package day13_test
 
 import (
-	"aoc/dayXX"
+	"aoc/day13"
 	"testing"
 
 	A "github.com/stretchr/testify/assert"
@@ -9,7 +9,7 @@ import (
 
 func TestDay(t *testing.T) {
 	a := A.New(t)
-	input := dayXX.ReadInput()
-	a.Equal("", dayXX.Step1(input), "step 1")
-	a.Equal("", dayXX.Step2(input), "step 2")
+	est, buses := day13.ReadInput()
+	a.Equal(4782, day13.Step1(est, buses), "step 1")
+	a.Equal(1118684865113056, day13.Step2(buses), "step 2")
 }
