@@ -22,8 +22,6 @@ def second() -> None:
 def run() -> None:
     ins = read_input()
     print("First step:")
-    # step1
-    print(first(ins))
+    print(first(ins)) # step1
     print("\nSecond step:")
-    # step2
-    print(second(ins))
+    print(second(ins)) # step2
