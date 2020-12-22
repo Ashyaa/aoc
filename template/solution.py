@@ -3,8 +3,8 @@ from pathlib import Path
 CWD = Path(__file__).parent
 
 
-def read_input() -> None:
-    input_file = CWD.joinpath("input.txt")
+def read_input(filename: str="input.txt") -> None:
+    input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
         for l in reader.readlines():
             # TODO: parse input
@@ -17,6 +17,12 @@ def first() -> None:
 
 def second() -> None:
     pass
+
+
+def test_example() -> None:
+    ins = read_input("example.txt")
+    assert first(ins) == None
+    assert second(ins) == None
 
 
 def run() -> None:
