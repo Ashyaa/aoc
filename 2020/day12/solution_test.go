@@ -1,7 +1,7 @@
 package dayXX_test
 
 import (
-	"aoc/20YY/dayXX"
+	"aoc/2020/dayXX"
 	"testing"
 
 	A "github.com/stretchr/testify/assert"

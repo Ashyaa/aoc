@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+
 from pathlib import Path
+# from typing import ...
+from AoC.util import show
+
 
 CWD = Path(__file__).parent
 
@@ -6,28 +11,24 @@ CWD = Path(__file__).parent
 def read_input(filename: str="input.txt") -> None:
     input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
-        for l in reader.readlines():
-            # TODO: parse input
-            pass
+        pass
 
 
+@show
 def first() -> None:
     pass
 
 
+@show
 def second() -> None:
     pass
 
 
 def test_example() -> None:
-    ins = read_input("example.txt")
-    assert first(ins) == None
-    assert second(ins) == None
+    assert first() == None
+    assert second() == None
 
 
-def run() -> None:
-    ins = read_input()
-    print("First step:")
-    print(first(ins)) # step1
-    print("\nSecond step:")
-    print(second(ins)) # step2
+test_example()
+first() # p1
+second() # p2
