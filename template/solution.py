@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import contextlib
+
 from pathlib import Path
 # from typing import ...
 from AoC.util import show
@@ -25,8 +27,9 @@ def second() -> None:
 
 
 def test_example() -> None:
-    assert first() == None
-    assert second() == None
+    with contextlib.redirect_stdout(None):
+        assert first() == None
+        assert second() == None
 
 
 test_example()
