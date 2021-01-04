@@ -49,4 +49,4 @@ def test_example() -> None:
 test_example()
 boxes = read_input()
 first(boxes) # 1588178
-second(boxes) # p2
+second(boxes) # 3783758
