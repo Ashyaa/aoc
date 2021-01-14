@@ -92,7 +92,7 @@ def test_example() -> None:
         assert second(ings) == 57600000
 
 
-test_example()
+# test_example()
 ings = read_input()
 first(ings) # 21367368
 second(ings) # 1766400
