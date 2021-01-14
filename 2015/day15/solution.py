@@ -56,14 +56,13 @@ def get_calories(ings: List[Ingredient]):
 
 
 def candidates(n: int, total: int=100):
-    start = total if n == 1 else 0
-    for i in range(start, total+1):
+    if n == 1:
+        yield [total]
+        return
+    for i in range(0, total+1):
         left = total - i
-        if n-1:
-            for y in candidates(n-1, left):
-                yield [i] + y
-        else:
-            yield [i]
+        for y in candidates(n-1, left):
+            yield [i] + y
 
 
 @show

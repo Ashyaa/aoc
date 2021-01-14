@@ -94,4 +94,4 @@ def test_example() -> None:
 test_example()
 g = read_input()
 first(g) # 141
-second(g) # p2
+second(g) # 736
