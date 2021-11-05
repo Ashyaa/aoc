@@ -3,6 +3,7 @@
 import contextlib
 
 from pathlib import Path
+
 # from typing import ...
 from AoC.util import show
 
@@ -10,7 +11,7 @@ from AoC.util import show
 CWD = Path(__file__).parent
 
 
-def read_input(filename: str="input.txt") -> None:
+def read_input(filename: str = "input.txt") -> None:
     input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
         pass
@@ -32,6 +33,7 @@ def test_example() -> None:
         assert second() == None
 
 
-test_example()
-first() # p1
-second() # p2
+if __name__ == "__main:":
+    test_example()
+    first()  # p1
+    second()  # p2

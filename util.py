@@ -9,7 +9,8 @@ def show(f):
         result = f(*args, **kw)
         te = datetime.now()
         print(f"{f.__name__}() = {result}")
-        print(f"Runtime: {te-ts}s")
+        print(f"Runtime: {(te-ts).total_seconds()}s")
         print()
         return result
+
     return wrap
