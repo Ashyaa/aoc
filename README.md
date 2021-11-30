@@ -1,2 +1,2 @@
-My implementation of Advent of Code 2020 in Python.
-See https://adventofcode.com/2020 for more info.
+My implementations of several Advent of Code editions in Python.
+See https://adventofcode.com/ for more info.
