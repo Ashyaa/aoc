@@ -4,7 +4,7 @@ import contextlib
 
 from pathlib import Path
 
-# from typing import ...
+from typing import *
 from AoC.util import show
 
 
@@ -18,12 +18,12 @@ def read_input(filename: str = "input.txt") -> None:
 
 
 @show
-def first() -> None:
+def first(input) -> None:
     pass
 
 
 @show
-def second() -> None:
+def second(input) -> None:
     pass
 
 
@@ -33,7 +33,8 @@ def test_example() -> None:
         assert second() == None
 
 
-if __name__ == "__main:":
+if __name__ == "__main__":
+    input = read_input()
     test_example()
-    first()  # p1
-    second()  # p2
+    first(input)  # p1
+    second(input)  # p2
