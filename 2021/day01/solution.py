@@ -10,23 +10,23 @@ from AoC.util import show
 CWD = Path(__file__).parent
 
 
-def read_input(filename: str = "input.txt") -> List[float]:
+def read_input(filename: str = "input.txt") -> List[int]:
     input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
-        return [float(l) for l in reader.readlines()]
+        return [int(l) for l in reader.readlines()]
 
 
 @show
-def first(l: List[float]) -> int:
-    l2 = [v > l[i - 1] for i, v in enumerate(l) if i != 0]
-    return sum(l2)
+def first(l: List[int]) -> int:
+    return sum(v > l[i - 1] for i, v in enumerate(l) if i != 0)
 
 
 @show
-def second(l: List[float]) -> int:
-    l2 = [v + l[i+1] + l[i+2] for i, v in enumerate(l) if i < len(l)-2]
+def second(l: List[int]) -> int:
     with contextlib.redirect_stdout(None):
-        return first(l2)
+        return first(
+            [v + l[i + 1] + l[i + 2] for i, v in enumerate(l) if i < len(l) - 2]
+        )
 
 
 def test_example() -> None:
@@ -38,5 +38,5 @@ def test_example() -> None:
 
 test_example()
 s = read_input()
-first(s)  # 280
-second(s)  # 1797
+first(s)  # 1681
+second(s)  # 1704
