@@ -19,15 +19,10 @@ def read_input(filename: str = "input.txt") -> List[str]:
 
 @show
 def first(inp: List[str]) -> int:
-    nb_words = len(inp)
-    nb_chars = len(inp[0])
+    nb_words, nb_chars = len(inp), len(inp[0])
     gamma, epsilon = 0, 0
     for col in range(nb_chars):
-        digit = (
-            1
-            if len([word[col] for word in inp if word[col] == "1"]) > nb_words / 2
-            else 0
-        )
+        digit = 1 if [word[col] for word in inp].count("1") > nb_words / 2 else 0
         gamma += digit << nb_chars - col - 1
         epsilon += (not digit) << nb_chars - col - 1
     return gamma * epsilon
@@ -36,21 +31,21 @@ def first(inp: List[str]) -> int:
 @show
 def second(inp: List[str]) -> int:
     def rec(inp: List[str], criteria: bool, idx: int = 0) -> str:
-        nb_words = len(inp)
         if len(inp) == 1:
             return inp[0]
-        nb_ones = len([word[idx] for word in inp if word[idx] == "1"])
+        nb_words = len(inp)
+        nb_ones = [word[idx] for word in inp].count("1")
         if nb_ones == len(inp) / 2:
-            wanted = "1" if criteria else "0"
+            wanted = 1 if criteria else 0
         else:
-            wanted = "0" if nb_ones > nb_words / 2 else "1"
+            wanted = 0 if nb_ones > nb_words / 2 else 1
             if criteria:
-                wanted = str(int(not (int(wanted))))
-        return rec([word for word in inp if word[idx] == wanted], criteria, idx + 1)
+                wanted = int(not wanted)
+        return rec(
+            [word for word in inp if int(word[idx]) == wanted], criteria, idx + 1
+        )
 
-    oxygen = int(rec(inp, True), 2)
-    co2 = int(rec(inp, False), 2)
-    return oxygen * co2
+    return int(rec(inp, True), 2) * int(rec(inp, False), 2)
 
 
 def test_example() -> None:
