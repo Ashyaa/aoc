@@ -18,23 +18,24 @@ def read_input(filename: str = "input.txt") -> None:
 
 
 @show
-def first(input) -> None:
+def first(inp) -> None:
     pass
 
 
 @show
-def second(input) -> None:
+def second(inp) -> None:
     pass
 
 
 def test_example() -> None:
     with contextlib.redirect_stdout(None):
-        assert first() == None
-        assert second() == None
+        inp = read_input("example.txt")
+        assert first(inp) == None
+        assert second(inp) == None
 
 
 if __name__ == "__main__":
-    input = read_input()
+    inp = read_input()
     test_example()
-    first(input)  # p1
-    second(input)  # p2
+    first(inp)  # p1
+    second(inp)  # p2
