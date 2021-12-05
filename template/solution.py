@@ -35,7 +35,7 @@ def test_example() -> None:
 
 
 if __name__ == "__main__":
-    inp = read_input()
     test_example()
+    inp = read_input()
     first(inp)  # p1
     second(inp)  # p2
