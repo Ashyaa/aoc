@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
 import contextlib
-import numpy as np
-
 from pathlib import Path
-
 from typing import *
 
-from numpy.core.defchararray import count
+import numpy as np
 from AoC.util import show
-
 
 CWD = Path(__file__).parent
 
@@ -17,18 +13,15 @@ CWD = Path(__file__).parent
 def read_input(filename: str = "input.txt") -> List[int]:
     input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
-        res = []
-        for l in reader.readlines():
-            t1, t2 = l.strip().split(" -> ")
-            res.extend(
-                [
-                    int(t1.split(",")[0]),
-                    int(t1.split(",")[1]),
-                    int(t2.split(",")[0]),
-                    int(t2.split(",")[1]),
-                ]
-            )
-        return res
+        return [int(s) for l in reader.readlines() for s in l.strip().replace(" -> ", ",").split(",")]
+
+
+def get_range(a: int, b: int, nb: int) -> List[int]:
+    if a == b:
+        return [a] * nb
+    if a < b:
+        return [i for i in range(a, b + 1)]
+    return [i for i in range(a, b - 1, -1)]
 
 
 def build_grid(inp: List[int], diag: bool = False) -> np.ndarray:
@@ -36,26 +29,13 @@ def build_grid(inp: List[int], diag: bool = False) -> np.ndarray:
     arr = np.zeros((size, size), dtype=int)
     for i in range(len(inp) // 4):
         idx = i * 4
-        if inp[idx] == inp[idx + 2]:
-            mn, mx = (
-                min(inp[idx + 1], inp[idx + 3]),
-                max(inp[idx + 1], inp[idx + 3]) + 1,
-            )
-            arr[mn:mx, inp[idx]] += 1
-        elif inp[idx + 1] == inp[idx + 3]:
-            mn, mx = min(inp[idx], inp[idx + 2]), max(inp[idx], inp[idx + 2]) + 1
-            arr[inp[idx + 1], mn:mx] += 1
-        elif diag:
-            if inp[idx] < inp[idx + 2]:
-                xrange = [i for i in range(inp[idx], inp[idx + 2] + 1)]
-            else:
-                xrange = [i for i in range(inp[idx], inp[idx + 2] - 1, -1)]
-            if inp[idx + 1] < inp[idx + 3]:
-                yrange = [i for i in range(inp[idx + 1], inp[idx + 3] + 1)]
-            else:
-                yrange = [i for i in range(inp[idx + 1], inp[idx + 3] - 1, -1)]
-            for x, y in zip(xrange, yrange):
-                arr[y, x] += 1
+        x1, y1, x2, y2 = inp[idx], inp[idx + 1], inp[idx + 2], inp[idx + 3]
+        if not diag and not ((x1 == x2) or (y1 == y2)):
+            continue
+        xrange = get_range(x1, x2, abs(y1 - y2) + 1)
+        yrange = get_range(y1, y2, abs(x1 - x2) + 1)
+        for x, y in zip(xrange, yrange):
+            arr[y, x] += 1
     return arr
 
 
