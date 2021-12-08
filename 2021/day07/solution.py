@@ -21,20 +21,17 @@ def cost(inp: List[int], pos: int) -> int:
     return sum([abs(i - pos) for i in inp])
 
 def cost_2(inp: List[int], pos: int) -> int:
-    def sigma(n: int) -> int:
-        return sum(i for i in range(1, n+1))
+    sigma = lambda n: n * (n+1) // 2
     return sum([sigma(abs(i - pos)) for i in inp])
 
 @show
 def first(inp: List[int]) -> int:
-    mn, mx = min(inp), max(inp)
-    return min([cost(inp, i) for i in range(mn, mx+1)])
+    return min([cost(inp, i) for i in range(min(inp), max(inp)+1)])
 
 
 @show
 def second(inp: List[int]) -> int:
-    mn, mx = min(inp), max(inp)
-    return min([cost_2(inp, i) for i in range(mn, mx+1)])
+    return min([cost_2(inp, i) for i in range(min(inp), max(inp)+1)])
 
 
 def test_example() -> None:
