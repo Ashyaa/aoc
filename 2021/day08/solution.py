@@ -21,13 +21,14 @@ def decode(line: List[str]) -> int:
     cur_digits = [None] * 10
     for i, wanted in zip([1,4,7,8], [2,4,3,7]):
         cur_digits[i] = next(set(w) for w in line if len(w) == wanted)
-    cur_digits[3] = next(set(w) for w in line if len(w) == 5 and len(cur_digits[7] & set(w)) == 3)
-    cur_digits[9] = next(set(w) for w in line if len(w) == 6 and cur_digits[3] < set(w))
+    cur_digits[3] = next(set(w) for w in line if len(w) == 5 and cur_digits[7] < set(w))
     cur_digits[5] = next(set(w) for w in line if len(w) == 5 and set(w) != cur_digits[3] and set(w) < cur_digits[9])
     cur_digits[2] = next(set(w) for w in line if len(w) == 5 and set(w) != cur_digits[3] and set(w) != cur_digits[5])
+    cur_digits[9] = next(set(w) for w in line if len(w) == 6 and cur_digits[3] < set(w))
     cur_digits[6] = next(set(w) for w in line if len(w) == 6 and set(w) != cur_digits[9] and cur_digits[5] < set(w))
     cur_digits[0] = next(set(w) for w in line if len(w) == 6 and set(w) != cur_digits[6] and set(w) != cur_digits[9])
     return int("".join(str(cur_digits.index(set(w))) for w in line[-4:]))
+
 
 @show
 def first(inp: List[str]) -> int:
@@ -50,5 +51,5 @@ def test_example() -> None:
 if __name__ == "__main__":
     test_example()
     inp = read_input()
-    first(inp)  # 504
-    second(inp)  # 1073431
+    first(inp)
+    second(inp)
