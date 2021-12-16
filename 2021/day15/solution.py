@@ -72,10 +72,6 @@ def test_example() -> None:
         assert second(inp) == 315
 
 
-def prof():
-    for _ in range(100):
-        build_map(inp)
-
 if __name__ == "__main__":
     test_example()
     inp = read_input()
