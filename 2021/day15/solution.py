@@ -15,55 +15,42 @@ def read_input(filename: str = "input.txt") -> np.ndarray:
     return np.genfromtxt(input_file, delimiter=1, dtype=int)
 
 
-def neighbours(arr: np.ndarray, coord: Tuple[int, int]) -> Generator[Tuple[int, int], None, None]:
+def neighbours(shape: Tuple[int, int], coord: Tuple[int, int]) -> Generator[Tuple[int, int], None, None]:
     x, y = coord
     for delta_x, delta_y in [(-1,0), (1,0), (0,-1), (0,1)]:
         new_x, new_y = x + delta_x, y + delta_y
-        if 0 <= new_x < arr.shape[0] and 0 <= new_y < arr.shape[1]:
+        if 0 <= new_x < shape[0] and 0 <= new_y < shape[1]:
             yield (new_x, new_y)
 
 
-def a_star(arr: np.ndarray, start: Tuple[int, int], stop: Tuple[int, int]) -> List[Tuple[int, int]]:
-    open_lst, closed_lst = set([start]), set([])
-    risk_from_start = {start: 0}
-    next_node = {start: start}
+def a_star(arr: np.ndarray, stop: Tuple[int, int], p2: bool = False) -> int:
+    shape = (arr.shape[0]*5, arr.shape[1]*5) if p2 else arr.shape
+    total_risk = np.zeros(shape, dtype=int) # total risk for each node
+    q = [[(0,0)]] + [[] for _ in range(10000)] # queue of nodes by distance
+    cur_risk = 0 # inital risk is none
 
-    while len(open_lst) > 0:
-        node = None
-        for coord in open_lst:
-            if node is None or risk_from_start[coord] + arr[coord] <= risk_from_start[node] + arr[node]:
-                node = coord
+    while total_risk[stop] == 0:
+        for node in q[cur_risk]: # for each node at the current risk
+            if cur_risk > total_risk[node]: # skip nodes whose risk is under the current risk
+                continue
+            for nbr in neighbours(shape, node): # for each neighbour
+                if p2:
+                    qx, rx = nbr[0] // arr.shape[0], nbr[0] % arr.shape[0]
+                    qy, ry = nbr[1] // arr.shape[1], nbr[1] % arr.shape[1]
+                    delta_risk = ((arr[rx, ry] + qx + qy - 1) % 9) + 1
+                else:
+                    delta_risk = arr[nbr]
+                if total_risk[nbr] == 0: # if neighbour was never visited
+                    total_risk[nbr] = cur_risk + delta_risk # save neighbour total risk
+                    q[cur_risk + delta_risk].append(nbr) # add neighbour to the for its total risk
+        cur_risk += 1
+    return total_risk[stop]
 
-        if node == stop:
-            reconst_path = []
-            while next_node[node] != node: # start condition
-                reconst_path.append(node)
-                node = next_node[node]
-            reconst_path.reverse()
-            return reconst_path
-
-        for nbr in neighbours(arr, node):
-            risk = arr[nbr]
-            if nbr not in open_lst and nbr not in closed_lst:
-                open_lst.add(nbr)
-                next_node[nbr] = node
-                risk_from_start[nbr] = risk_from_start[node] + risk
-            else:
-                if risk_from_start[nbr] > risk_from_start[node] + risk:
-                    risk_from_start[nbr] = risk_from_start[node] + risk
-                    next_node[nbr] = node
-                    if nbr in closed_lst:
-                        closed_lst.remove(nbr)
-                        open_lst.add(nbr)
-
-        open_lst.remove(node)
-        closed_lst.add(node)
 
 
 @show
 def first(inp: np.ndarray) -> int:
-    pth = a_star(inp, (0,0), (inp.shape[0]-1, inp.shape[1]-1))
-    return sum(inp[node] for node in pth)
+    return a_star(inp, (inp.shape[0]-1, inp.shape[1]-1))
 
 
 def tile_value(value: int, shift: int) -> int:
@@ -85,9 +72,13 @@ def build_map(inp: np.ndarray) -> np.ndarray:
 
 @show
 def second(inp: np.ndarray) -> int:
+    return a_star(inp, ((inp.shape[0] * 5) - 1, (inp.shape[1] * 5) - 1), True)
+
+
+@show
+def third(inp: np.ndarray) -> int:
     arr = build_map(inp)
-    pth = a_star(arr, (0,0), (arr.shape[0]-1, arr.shape[1]-1))
-    return sum(arr[node] for node in pth)
+    return a_star(arr, (arr.shape[0]-1, arr.shape[1]-1))
 
 
 def test_example() -> None:
@@ -102,3 +93,4 @@ if __name__ == "__main__":
     inp = read_input()
     first(inp)  # 527
     second(inp)  # 2887
+    third(inp)  # 2887
