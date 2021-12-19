@@ -83,9 +83,11 @@ def read_input(filename: str = "input.txt") -> List[Scanner]:
             if l.startswith("--"):
                 res.append(Scanner())
             elif l.strip() == "":
-                res[-1].compute_distances()
+                continue
             else:
                 res[-1].beacons.append(tuple([int(n) for n in l.strip().split(",")]))
+        for sc in res:
+            sc.compute_distances()
         return res
 
 
@@ -132,7 +134,7 @@ def match(a: Scanner, b: Scanner) -> Tuple[bool, Tuple[int, int], Tuple[int, int
     pr = scan1 and scan4
     if pr:
         print("scanner 1 found and trying to match with scanner 4")
-        print(len(a.beacons), len(b.beacons))
+        print(len(a.distances), len(b.distances))
         # input()
     for rx, ry, rz in ROTATIONS:
         matching = set()
