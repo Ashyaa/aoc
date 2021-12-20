@@ -1,78 +1,25 @@
 #!/usr/bin/env python3
 
+"""
+This implementation relies on the fact that if two scanner boxes match, the distance between
+their common beacons will always be the same. So we proceed to find, for each axis, the proper
+rotation. Working on each axis separately works: if one does not match, it's enough to say the
+two boxes can't match. If they do, all 3 axes will match separately.
+When rotating, each axis can end up being negated, so there are only 6 permutations to consider.
+"""
+
 import contextlib
-
+from collections import Counter
+from itertools import product
 from pathlib import Path
-
 from typing import *
-from AoC.util import show
 
+from AoC.util import show
 
 CWD = Path(__file__).parent
 
-
-class Scanner:
-    x: int
-    y: int
-    z: int
-    beacons: List[Tuple[int, int, int]]
-    distances: Dict[Tuple[int, int], Tuple[int, int, int]]
-
-    def __init__(self) -> None:
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.beacons = []
-        self.distances = {}
-
-    def compute_distances(self):
-        for i in range(len(self.beacons) - 1):
-            x1, y1, z1 = self.beacons[i]
-            for j in range(i + 1, len(self.beacons)):
-                x2, y2, z2 = self.beacons[j]
-                dx, dy, dz = x2 - x1, y2 - y1, z2 - z1
-                self.distances[(i, j)] = (dx, dy, dz)
-                self.distances[(j, i)] = (-dx, -dy, -dz)
-
-    def rotate(self, x: int, y: int, z: int) -> None:
-        for i in range(len(self.beacons)):
-            self.beacons[i] = rot_xyz(self.beacons[i], x, y, z)
-        for k in self.distances.keys():
-            self.distances[k] = rot_xyz(self.distances[k], x, y, z)
-
-    def set_pos(self, x: int, y: int, z: int, i: int):
-        dx, dy, dz = self.beacons[i]
-        self.x = x - dx
-        self.y = y - dy
-        self.z = z - dz
-        # print(x, y, z)
-        # print(dx, dy, dz)
-        print("scanner found:", self.x, self.y, self.z)
-        print()
-        # input()
-
-    def abs_beacon(self, i: int) -> Tuple[int, int, int]:
-        dx, dy, dz = self.beacons[i]
-        return self.x + dx, self.y + dy, self.z + dz
-
-    def abs_beacons(self) -> List[Tuple[int, int, int]]:
-        return [self.abs_beacon(i) for i in range(len(self.beacons))]
-
-
-rot_x = lambda x, y, z: (x, -z, y)
-rot_y = lambda x, y, z: (-z, y, x)
-rot_z = lambda x, y, z: (-y, x, z)
-
-
-def rot_xyz(node: Tuple[int, int, int], x: int, y: int, z: int) -> Tuple[int, int, int]:
-    res = node
-    for _ in range(x):
-        res = rot_x(*res)
-    for _ in range(y):
-        res = rot_y(*res)
-    for _ in range(z):
-        res = rot_z(*res)
-    return res
+Position = Tuple[int,int,int]
+Scanner = List[Position]
 
 
 def read_input(filename: str = "input.txt") -> List[Scanner]:
@@ -81,131 +28,84 @@ def read_input(filename: str = "input.txt") -> List[Scanner]:
         res = []
         for l in reader.readlines():
             if l.startswith("--"):
-                res.append(Scanner())
+                res.append([])
             elif l.strip() == "":
                 continue
             else:
-                res[-1].beacons.append(tuple([int(n) for n in l.strip().split(",")]))
-        for sc in res:
-            sc.compute_distances()
+                res[-1].append(tuple([int(n) for n in l.strip().split(",")]))
         return res
 
 
-ROTATIONS = [
-    (0, 0, 0),
-    (1, 0, 0),
-    (2, 0, 0),
-    (3, 0, 0),
-    (0, 0, 1),
-    (0, 1, 1),
-    (0, 2, 1),
-    (0, 3, 1),
-    (0, 0, 2),
-    (1, 0, 2),
-    (2, 0, 2),
-    (3, 0, 2),
-    (0, 0, 3),
-    (0, 1, 3),
-    (0, 2, 3),
-    (0, 3, 3),
-    (0, 1, 0),
-    (0, 1, 1),
-    (0, 1, 2),
-    (0, 1, 0),
-    (0, 3, 0),
-    (0, 3, 1),
-    (0, 3, 2),
-    (0, 3, 0),
-]
+AXIS_PERMUTATIONS = list(product(range(0,3), [1, -1]))
 
 
-def match(a: Scanner, b: Scanner) -> Tuple[bool, Tuple[int, int], Tuple[int, int, int]]:
-    """[summary]
-
-    Args:
-        a (Scanner): scanner in absolute pos
-        b (Scanner): scanner in relative pos
-
-    Returns:
-        Tuple[bool, Tuple[int, int], Tuple[int, int, int]]: match found, (common beacon index in a and b), (rotation applied to b)
-    """
-    scan1 = (a.x, a.y, a.z) == (68, -1246, -43)
-    scan4 = b.beacons[0] == (727, 592, 562)
-    pr = scan1 and scan4
-    if pr:
-        print("scanner 1 found and trying to match with scanner 4")
-        print(len(a.distances), len(b.distances))
-        # input()
-    for rx, ry, rz in ROTATIONS:
-        matching = set()
-        # if pr:
-        #     print("rotation:", rx, ry, rz)
-        #     print()
-        for (i, j), (dxa, dya, dza) in a.distances.items():
-            # if pr:
-            #     print(f"distance in a ({i},{j}):", dxa, dya, dza)
-            for (m, n), coord in b.distances.items():
-                cx, cy, cz = rot_xyz(coord, rx, ry, rz)
-                if pr:
-                    print(f"distance in b ({m},{n}):", cx, cy, cz)
-                if dxa == cx and dya == cy and dza == cz:
-                    # input()
-                    matching.add(i)
-                    matching.add(j)
-                if len(matching) >= 12:
-                    if pr:
-                        input("match found")
-                    return True, (i, m), (rx, ry, rz)
-    # exit(-1)
-    return False, (-1, -1), (-1, -1, -1)
+def match(a: Scanner, b: Scanner) -> Tuple[Union[None, Scanner], Position]:
+    res, b_pos = [], [-1]*3
+    b_ax, found_ax = [], set()
+    distance, count, b_idx = 0, 0, 0
+    # for each axis of a
+    for a_idx in range(3):
+        a_ax = [beacon[a_idx] for beacon in a] # axis n°a_idx in a
+        # for each axis of b, possibly negated
+        for b_idx, factor in AXIS_PERMUTATIONS:
+            if b_idx in found_ax:
+                # an axis can only be matched once, skip it if it was already matched
+                continue
+            b_ax = [beacon[b_idx] * factor for beacon in b] # axis n°b_idx in b, negated if needed
+            # compute distance between each partial beacons of a and b
+            distances =  [bcb-bca for bca, bcb in product(a_ax, b_ax)]
+            distance, count = Counter(distances).most_common(1)[0]
+            if count >= 12:
+                # if a single distance was found 12 times or more, it's the offset on
+                # the current axis between the two scanners, meaning that we have a match
+                break
+        if count < 12:
+            # the axis does not match, meaning the two scanner boxes can't match
+            return None, (-1,-1,-1)
+        # save the previously found axis for later iterations
+        found_ax.add(b_idx)
+        # shift the axis of b to absolute coordinates using the distance between scanners
+        res.append([bc - distance for bc in b_ax])
+        # save the scanner coordinate
+        b_pos[a_idx] = distance
+    # zip the 3 axis together to return the absolute version of b, along with the absolute position of b
+    return list(zip(res[0], res[1], res[2])), tuple(b_pos) # type: ignore
 
 
 @show
-def first(inp: List[Scanner]) -> int:
-    found = inp[:1]
-    not_found = inp[1:]
-    res = set(found[0].beacons)
-    i = 0
-    while len(found) != len(inp):
-        print("found scanners:")
-        for s in found:
-            print(s.x, s.y, s.z, s.beacons[0])
-        print("not found scanners:")
-        for s in not_found:
-            print(s.x, s.y, s.z, s.beacons[0])
-        print()
-        ref = found[i]
-
-        match_found = False
+def first(inp: List[Scanner]) -> Tuple[int, int]:
+    # part 1
+    fifo, not_found, =  inp[:1], inp[1:]
+    res = set(fifo[0])
+    positions: List[Position] = [(0,0,0)] # first center
+    while fifo:
+        ref = fifo.pop()
         tmp = []
         for b in not_found:
-            match_found, idx, rot = match(ref, b)
-            if match_found:
-                b.rotate(*rot)
-                b.set_pos(*(ref.abs_beacon(idx[0])), idx[1])
-                found.append(b)
-                res |= set(b.abs_beacons())
+            rotated_b, pos = match(ref, b)
+            if rotated_b:
+                fifo.append(rotated_b)
+                positions.append(pos)
+                res |= set(rotated_b)
             else:
                 tmp.append(b)
         not_found = tmp
-        i += 1
-    return len(res)
 
-
-@show
-def second(inp) -> None:
-    pass
+    # part 2
+    distances = []
+    for i, scanner_1 in enumerate(positions[:-1]):
+        for scanner_2 in positions[i+1:]:
+            distances.append(sum(abs(x2 - x1) for x1, x2 in zip(scanner_1, scanner_2)))
+    return len(res), max(distances)
 
 
 def test_example() -> None:
-    inp = read_input("example.txt")
-    assert first(inp) == 79
     with contextlib.redirect_stdout(None):
-        assert second(inp) == None
+        inp = read_input("example.txt")
+        assert first(inp) == (79, 3621)
 
 
 if __name__ == "__main__":
     test_example()
     inp = read_input()
-    first(inp)  # p1
-    second(inp)  # p2
+    first(inp)  # 400, 12168
