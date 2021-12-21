@@ -12,6 +12,7 @@ from AoC.util import show
 
 CWD = Path(__file__).parent
 
+CACHE = {}
 
 def read_input(filename: str = "input.txt") -> Tuple[int, int]:
     input_file = CWD.joinpath(filename)
@@ -55,6 +56,8 @@ def dirac(p1: int, s1: int, p2: int, s2: int, turn: bool) -> Tuple[int, int]:
     if s2 >= 21:
         return 0,1
     win1, win2 = 0, 0
+    if (p1, s1, p2, s2, turn) in CACHE:
+        return CACHE[(p1, s1, p2, s2, turn)]
     for roll, times in DIRAC_ROLLS:
         sub_p1, sub_p2 = p1, p2
         sub_s1, sub_s2 = s1, s2
@@ -67,6 +70,7 @@ def dirac(p1: int, s1: int, p2: int, s2: int, turn: bool) -> Tuple[int, int]:
         w1, w2 = dirac(sub_p1, sub_s1, sub_p2, sub_s2, not turn)
         win1 +=  w1 * times
         win2 +=  w2 * times
+    CACHE[(p1, s1, p2, s2, turn)] = (win1, win2)
     return win1, win2
 
 
@@ -85,6 +89,7 @@ def test_example() -> None:
 
 if __name__ == "__main__":
     test_example()
+    CACHE = {}
     inp = read_input()
     first(*inp)  # 605070
     second(*inp)  # 218433063958910
