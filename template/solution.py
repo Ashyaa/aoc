@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
 import contextlib
-
 from pathlib import Path
-
 from typing import *
-from AoC.util import show
 
+from AoC.util import show
 
 CWD = Path(__file__).parent
 

@@ -1,64 +1,54 @@
 #!/usr/bin/env python3
 
 import contextlib
-
 from pathlib import Path
 from typing import *
-import numpy as np
-from AoC.util import show
 
+from AoC.util import show
 
 CWD = Path(__file__).parent
 
 
-def read_input(filename: str = "input.txt") -> np.ndarray:
+def read_input(filename: str = "input.txt") -> List[List[str]]:
     input_file = CWD.joinpath(filename)
     with open(input_file, "r") as reader:
-        lines = reader.readlines()
-        x, y = len(lines), 0
-        res = []
-        for l in lines:
-            if y == 0:
-                y = len(l.strip())
-            res.extend(c for c in l.strip())
-        r = np.array(res).reshape((x,y))
-        return r
+        return [[c for c in l.strip()] for l in reader.readlines()]
 
 
-def move(inp: np.ndarray, elts: List[Tuple[int,int]], east: bool) -> Tuple[np.ndarray, bool]:
-    res = False
-    changes = {}
+def move(inp: List[List[str]], elts: List[Tuple[int,int]], east: bool) -> Tuple[List[List[str]], bool]:
+    res, changes = False, {}
+    size_x, size_y = len(inp), len(inp[0])
     for x, y in elts:
-        val = inp[x,y]
-        next_pos = x, y
+        val = inp[x][y]
+        x1, y1 = x, y
         if east:
-            next_pos = x, (y+1) % inp.shape[1]
+            y1 = (y+1) % size_y
         else:
-            next_pos = (x+1) % inp.shape[0], y
-        if inp[next_pos] == '.':
-            changes[next_pos] = val
+            x1 = (x+1) % size_x
+        if inp[x1][y1] == '.':
+            changes[(x1, y1)] = val
             changes[(x, y)] = '.'
             res = True
         else:
-            changes[x, y] = val
-    for pos, val in changes.items():
-        inp[pos] = val
+            changes[(x, y)] = val
+    for (x,y), val in changes.items():
+        inp[x][y] = val
     return inp, res
 
 
-def list_elts(inp: np.ndarray) -> Tuple[List[Tuple[int,int]], List[Tuple[int,int]]]:
+def list_elts(inp: List[List[str]]) -> Tuple[List[Tuple[int,int]], List[Tuple[int,int]]]:
     east, south = [], []
-    for x in range(inp.shape[0]):
-        for y in range(inp.shape[1]):
-            if inp[x,y] == '>':
+    for x in range(len(inp)):
+        for y in range(len(inp[0])):
+            if inp[x][y] == '>':
                 east.append((x,y))
-            if inp[x,y] == 'v':
+            if inp[x][y] == 'v':
                 south.append((x,y))
     return east, south
 
 
 @show
-def first(inp: np.ndarray) -> int:
+def first(inp: List[List[str]]) -> int:
     step, moved = 0, True
     while moved:
         step += 1
