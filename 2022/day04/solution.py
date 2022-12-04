@@ -14,7 +14,7 @@ def read_input(filename: str = "input.txt") -> List[Tuple[set[int], set[int]]]:
     with open(CWD.joinpath(filename), "r", encoding="utf-8") as reader:
         res = []
         for l in reader.readlines():
-            int_list = list(map(int, l.strip().replace(",", "-").split('-')))
+            int_list = [int(n) for n in  l.strip().replace(",", "-").split('-')]
             range_1, range_2 = range(int_list[0], int_list[1]+1), range(int_list[2], int_list[3]+1)
             res.append((set(range_1), set(range_2)))
         return res
@@ -22,7 +22,7 @@ def read_input(filename: str = "input.txt") -> List[Tuple[set[int], set[int]]]:
 
 @show
 def first(l: List[Tuple[set[int], set[int]]]) -> int:
-    return sum(len(a.intersection(b)) == min(len(a), len(b)) for a, b in l)
+    return sum(a < b or b < a for a, b in l)
 
 
 @show
