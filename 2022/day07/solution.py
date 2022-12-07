@@ -33,7 +33,9 @@ class Node:
 
 
     def size(self):
-        return sum(c.size() for c in self.children) if self.is_dir else self.__size
+        if self.__size < 0:
+            self.__size = sum(c.size() for c in self.children)
+        return self.__size
 
 
     def add_child(self, name: List[str], size: str) -> None:
