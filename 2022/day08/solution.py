@@ -1,79 +1,60 @@
 #!/usr/bin/env python3
 
 import contextlib
-
+from functools import reduce
 from itertools import product
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Tuple
+
 from AoC.util import show
 
-
 CWD = Path(__file__).parent
+LENGTH, WIDTH = -1, -1
 
 
 def read_input(filename: str = "input.txt") -> List[List[int]]:
+    global LENGTH, WIDTH
     with open(CWD.joinpath(filename), "r", encoding="utf-8") as reader:
-        return [[int(c) for c in l] for l in reader.read().split("\n")]
+        lines = reader.read().split("\n")
+        LENGTH, WIDTH = len(lines), len(lines[0])
+        return [[int(c) for c in l] for l in lines]
 
 
-def visible(grid: List[List[int]], x: int, y: int) -> bool:
-    length = len(grid)
-    width = len(grid[0])
-    if x == 0 or x == length or y == 0 or y == width:
-       return True
-    tree = grid[x][y]
-    axis_1 = [l[y] for l in grid[0:x+1]]
-    axis_2 = [l[y] for l in grid[x:length]]
-    axis_3 = grid[x][0:y+1]
-    axis_4 = grid[x][y:width]
-    f = lambda ax : tree == max(ax) and ax.count(tree) == 1
-    return f(axis_1) or f(axis_2) or f(axis_3) or f(axis_4)
+def axes(grid: List[List[int]], x: int, y: int) -> List[List[int]]:
+    return [
+      list(reversed([l[y] for l in grid[0:x]])),
+      [l[y] for l in grid[x+1:LENGTH]],
+      list(reversed(grid[x][0:y])),
+      grid[x][y+1:WIDTH],
+    ]
 
 
-def score(grid: List[List[int]], x: int, y: int) -> int:
-    length = len(grid)
-    width = len(grid[0])
-    if x == 0 or x == length or y == 0 or y == width:
-       return 0
-    tree = grid[x][y]
-    axis_1 = reversed([l[y] for l in grid[0:x]])
-    axis_2 = [l[y] for l in grid[x+1:length]]
-    axis_3 = reversed(grid[x][0:y])
-    axis_4 = grid[x][y+1:width]
-    def f(ax: List[int]) -> int:
+def process(grid: List[List[int]], x: int, y: int) -> Tuple[bool, int]:
+    if x == 0 or x == LENGTH-1 or y == 0 or y == WIDTH-1:
+       return True, 0
+    f1 = lambda ax : max(ax) < grid[x][y]
+    def f2(ax: List[int]) -> int:
         res = 0
         for n in ax:
             res += 1
-            if n >= tree:
+            if n >= grid[x][y]:
                 break
         return res
-    return f(axis_1) * f(axis_2) * f(axis_3) * f(axis_4)
+    axs = axes(grid, x, y)
+    return any(map(f1, axs)), reduce(lambda x, y : x*y, map(f2, axs))
 
 
 @show
-def first(grid: List[List[int]]) -> int:
-    length = len(grid)
-    width = len(grid[0])
-    return sum(visible(grid, x, y) for x, y in product(range(length), range(width)))
-
-
-@show
-def second(grid: List[List[int]]) -> int:
-    length = len(grid)
-    width = len(grid[0])
-    return max(score(grid, x, y) for x, y in product(range(length), range(width)))
+def run(grid: List[List[int]]) -> int:
+    data = [process(grid, x, y) for x, y in product(range(LENGTH), range(WIDTH))]
+    return sum(d[0] for d in data),  max(d[1] for d in data)
 
 
 def test_example() -> None:
-    inp = read_input("example.txt")
     with contextlib.redirect_stdout(None):
-        r1  = first(inp)
-        assert r1 == 21, r1
-        r2  = second(inp)
-        assert r2 == 8, r2
+        res  = run(read_input("example.txt"))
+        assert res == (21, 8), res
 
 
 test_example()
-s = read_input()
-first(s)  # 2061777
-second(s)  # 4473403
+run(read_input()) # 1798, 259308
