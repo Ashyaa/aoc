@@ -27,26 +27,22 @@ def read_input(filename: str = "input.txt") -> List[Tuple[str, int]]:
 @show
 def run(inp: List[Tuple[str, int]], size: int) -> int:
     rope = [(0,0) for _ in range(size)]
-    positions = set()
-    positions.add(rope[-1])
+    positions = set([rope[-1]])
     for dir, nb in inp:
         dx, dy = DIRECTIONS[dir]
         for _ in range(nb):
-            new_rope = [r for r in rope]
-            new_rope[0] = rope[0][0]+dx, rope[0][1]+dy
+            rope[0] = rope[0][0]+dx, rope[0][1]+dy
             for i in range(1, size):
-                new_xh, new_yh = new_rope[i-1]
+                xh, yh = rope[i-1]
                 x, y = rope[i]
-                dist_x = abs(x - new_xh)
-                dist_y = abs(y - new_yh)
+                dist_x, dist_y = abs(x - xh), abs(y - yh)
                 if dist_x + dist_y >= 2:
                     if dist_x < dist_y:
-                        new_rope[i] = new_xh, new_yh + (-1 if y < new_yh else 1)
+                        rope[i] = xh, yh + (-1 if y < yh else 1)
                     elif dist_x > dist_y:
-                        new_rope[i] = new_xh + (-1 if x < new_xh else 1), new_yh
+                        rope[i] = xh + (-1 if x < xh else 1), yh
                     else:
-                        new_rope[i] = new_xh + (-1 if x < new_xh else 1), new_yh + (-1 if y < new_yh else 1)
-            rope = new_rope
+                        rope[i] = xh + (-1 if x < xh else 1), yh + (-1 if y < yh else 1)
             positions.add(rope[-1])
     return len(positions)
 
