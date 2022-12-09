@@ -45,7 +45,7 @@ def process(grid: List[List[int]], x: int, y: int) -> Tuple[bool, int]:
 
 
 @show
-def run(grid: List[List[int]]) -> int:
+def run(grid: List[List[int]]) -> Tuple[int, int]:
     data = [process(grid, x, y) for x, y in product(range(LENGTH), range(WIDTH))]
     return sum(d[0] for d in data),  max(d[1] for d in data)
 
