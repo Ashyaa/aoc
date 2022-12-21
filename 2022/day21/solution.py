@@ -167,7 +167,7 @@ def test_example() -> None:
         assert r2 == 301, r2
 
 
-# test_example()
+test_example()
 inp = read_input()
 assert run_1(inp) == 276156919469632
 assert run_2(inp) == 3441198826073
