@@ -94,7 +94,7 @@ func findDigit(runes, tmp []rune, i int, end bool) []rune {
 	return tmp
 }
 
-func Second(lines []string) interface{} {
+func Second(lines []string) int {
 	res := 0
 	for _, line := range lines {
 		tmp := []rune{0, 0}
@@ -128,9 +128,9 @@ func TestDay(t *testing.T) {
 }
 
 func BenchmarkDay(b *testing.B) {
-	b.Run("day", func(b *testing.B) {
+	for i := 0; i < b.N; i++ {
 		input := ReadInput(inputFile)
 		First(input)
 		Second(input)
-	})
+	}
 }

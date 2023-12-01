@@ -36,3 +36,11 @@ func TestDay(t *testing.T) {
 	r.Equal(nil, Second(example))
 	r.Equal(nil, Second(input))
 }
+
+func BenchmarkDay(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		input := ReadInput(inputFile)
+		First(input)
+		Second(input)
+	}
+}
