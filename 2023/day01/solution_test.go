@@ -116,7 +116,7 @@ func Second(lines []string) int {
 	return res
 }
 
-func TestDay(t *testing.T) {
+func TestDay01(t *testing.T) {
 	r := R.New(t)
 	example := ReadInput(exampleFile)
 	example2 := ReadInput(exampleFile2)
@@ -127,7 +127,7 @@ func TestDay(t *testing.T) {
 	r.Equal(54203, Second(input))
 }
 
-func BenchmarkDay(b *testing.B) {
+func BenchmarkDay01(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		input := ReadInput(inputFile)
 		First(input)
