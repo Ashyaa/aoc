@@ -1,11 +1,11 @@
 package day04
 
 import (
-	"fmt"
+	"bufio"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	R "github.com/stretchr/testify/require"
 )
@@ -15,40 +15,83 @@ const (
 	exampleFile = "./example.txt"
 )
 
+func SplitLines(s string) []string {
+	var lines []string
+	sc := bufio.NewScanner(strings.NewReader(s))
+	for sc.Scan() {
+		lines = append(lines, sc.Text())
+	}
+	return lines
+}
+
 // ReadInput retrieves the content of the input file
-func ReadInput(filepath string) []string {
+func ReadInput(filepath string) (res [][]int) {
 	data, _ := os.ReadFile(filepath)
-	return strings.Split(string(data), "\n")
+	for _, line := range SplitLines(string(data)) {
+		l := strings.ReplaceAll(line, "  ", " ")
+		idx := strings.Index(l, ": ")
+		numbers := l[idx+2:]
+		ints := []int{}
+		for _, str_n := range strings.Split(numbers, " ") {
+			if str_n == "|" {
+				ints = append(ints, -1)
+				continue
+			}
+			n, _ := strconv.Atoi(str_n)
+			ints = append(ints, n)
+		}
+		res = append(res, ints)
+	}
+	return
 }
 
-func First(input []string) interface{} {
-	return nil
-}
-
-func Second(input []string) interface{} {
-	return nil
+func Solve(input [][]int) (p1, p2 int) {
+	matches := make([]int, len(input))
+	for idx, game := range input {
+		card := map[int]bool{}
+		cardEnd := false
+		nbMatches := -1
+		for _, n := range game {
+			if n < 0 {
+				cardEnd = true
+				continue
+			}
+			if _, match := card[n]; cardEnd && match {
+				nbMatches += 1
+			} else if !cardEnd {
+				card[n] = true
+			}
+		}
+		if nbMatches >= 0 {
+			p1 += 1 << nbMatches
+		}
+		matches[idx] = nbMatches + 1
+	}
+	for idx := len(input) - 1; idx >= 0; idx-- {
+		copies := 0
+		for other := matches[idx]; other > 0; other-- {
+			copies += matches[idx+other]
+		}
+		matches[idx] = 1 + copies
+		p2 += matches[idx]
+	}
+	return
 }
 
 func TestDay04(t *testing.T) {
 	r := R.New(t)
 	example := ReadInput(exampleFile)
 	input := ReadInput(inputFile)
-	r.Equal(nil, First(example))
-	r.Equal(nil, First(input))
-	r.Equal(nil, Second(example))
-	r.Equal(nil, Second(input))
+	p1, p2 := Solve(example)
+	r.Equal(13, p1)
+	r.Equal(30, p2)
+	p1, p2 = Solve(input)
+	r.Equal(23678, p1)
+	r.Equal(15455663, p2)
 }
 
 func BenchmarkDay04(b *testing.B) {
-	start := time.Now()
-	n := 0
 	for i := 0; i < b.N; i++ {
-		input := ReadInput(inputFile)
-		// n %= First(input)
-		First(input)
-		// n %= Second(input)
-		Second(input)
+		Solve(ReadInput(inputFile))
 	}
-	elapsed := time.Since(start)
-	fmt.Printf("took %s on average (%d)\n", time.Duration(int(elapsed)/b.N), n)
 }
