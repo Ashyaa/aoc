@@ -47,7 +47,8 @@ func ReadInput(filepath string) (res [][]int) {
 
 func Solve(input [][]int) (p1, p2 int) {
 	matches := make([]int, len(input))
-	for idx, game := range input {
+	for idx := len(input) - 1; idx >= 0; idx-- {
+		game := input[idx]
 		card := map[int]bool{}
 		cardEnd := false
 		nbMatches := -1
@@ -66,8 +67,6 @@ func Solve(input [][]int) (p1, p2 int) {
 			p1 += 1 << nbMatches
 		}
 		matches[idx] = nbMatches + 1
-	}
-	for idx := len(input) - 1; idx >= 0; idx-- {
 		copies := 0
 		for other := matches[idx]; other > 0; other-- {
 			copies += matches[idx+other]
