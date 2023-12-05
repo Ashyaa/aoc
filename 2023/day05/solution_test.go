@@ -19,99 +19,76 @@ const (
 )
 
 type conv struct {
-	dstMin, dstMax, srcMin, srcMax int
+	dstBegin, srcBegin, srcEnd int
 }
 
-func (c conv) InRange(n int, reverse bool) bool {
-	if reverse {
-		return n >= c.dstMin && n <= c.dstMax
-	}
-	return n >= c.srcMin && n <= c.srcMax
+func (c conv) InRange(n int) bool {
+	return n >= c.srcBegin && n <= c.srcEnd
 }
 
-func (c conv) Call(n int, reverse bool) int {
-	if reverse {
-		return c.srcMin + n - c.dstMin
+func (c conv) Call(n int) int {
+	return c.dstBegin + n - c.srcBegin
+}
+
+func (c conv) intersects(otherBegin, otherEnd int) bool {
+	return c.srcBegin < otherEnd && otherBegin < c.srcEnd
+}
+
+func (c conv) intersection(otherBegin, otherEnd int) (interStart, interEnd int, ok bool) {
+	if !c.intersects(otherBegin, otherEnd) {
+		return
 	}
-	return c.dstMin + n - c.srcMin
+	return max(c.srcBegin, otherBegin), min(c.srcEnd, otherEnd), true
+}
+
+func (c conv) outOfIntersection(otherBegin, otherEnd int) (res []int) {
+	interBegin, interEnd, ok := c.intersection(otherBegin, otherEnd)
+	if !ok {
+		return
+	}
+	if otherBegin < interBegin {
+		res = append(res, otherBegin, interBegin)
+	}
+	if interEnd < otherEnd {
+		res = append(res, interEnd, otherEnd)
+	}
+	return
 }
 
 type convs []conv
 
-func (cs convs) Call(n int, reverse bool) int {
+func (cs convs) Call(n int) int {
 	for _, conv := range cs {
-		if conv.InRange(n, reverse) {
-			return conv.Call(n, reverse)
+		if conv.InRange(n) {
+			return conv.Call(n)
 		}
 	}
 	return n
 }
 
-func (cs convs) Min() int {
-	var res int
-	min := 1 << 32
-	for _, conv := range cs {
-		if conv.dstMin < min {
-			min = conv.dstMin
-			res = conv.srcMin
-		}
-	}
-	return res
-}
-
-func intersects(a, b, c, d int) bool {
-	return a < d && c < b
-}
-
-func intersection(a, b, c, d int) (start, end int, ok bool) {
-	if !intersects(a, b, c, d) {
-		return start, end, false
-	}
-	return max(a, c), min(b, b), ok
-}
-
-func outOfIntersection(a, b, c, d int) (res []int) {
-	interMin, interMax, ok := intersection(a, b, c, d)
-	if !ok {
-		return
-	}
-	if a < interMin {
-		res = append(res, a, interMin)
-	}
-	if interMax < b {
-		res = append(res, interMax, b)
-	}
-	return
-}
-
 func convFromSlice(s []int) conv {
-	return conv{s[0], s[0] + s[2], s[1], s[1] + s[2]}
-}
-
-func SplitLines(s string) []string {
-	var lines []string
-	sc := bufio.NewScanner(strings.NewReader(s))
-	for sc.Scan() {
-		lines = append(lines, sc.Text())
-	}
-	return lines
+	return conv{s[0], s[1], s[1] + s[2]}
 }
 
 // ReadInput retrieves the content of the input file
 func ReadInput(filepath string) (seeds []int, maps []convs) {
-	data, _ := os.ReadFile(filepath)
+	firstLine := true
+	s, _ := os.Open(filepath)
+	sc := bufio.NewScanner(s)
 	maps = make([]convs, 7)
 	mapIdx := -1
-	for idx, line := range SplitLines(string(data)) {
-		if idx == 0 {
+	for sc.Scan() {
+		line := sc.Text()
+		if len(line) == 0 {
+			continue
+		}
+		if firstLine {
 			words := strings.Split(line[7:], " ")
 			for _, word := range words {
 				seed, _ := strconv.Atoi(word)
 				seeds = append(seeds, seed)
 			}
-			continue
-		}
-		if len(line) == 0 {
+			firstLine = false
 			continue
 		}
 		if strings.HasSuffix(line, "map:") {
@@ -134,7 +111,7 @@ func First(seeds []int, maps []convs) int {
 	for _, seed := range seeds {
 		src := seed
 		for _, convs := range maps {
-			src = convs.Call(src, false)
+			src = convs.Call(src)
 		}
 		locations = append(locations, src)
 	}
@@ -142,61 +119,31 @@ func First(seeds []int, maps []convs) int {
 }
 
 func Second(seeds []int, maps []convs) int {
-	for idx := range seeds {
-		if idx%2 == 0 {
-			continue
-		}
-		seeds[idx] += seeds[idx-1]
-	}
-	for finalTarget := 0; finalTarget < (1 << 32); finalTarget++ {
-		target := finalTarget
-		isSeed := false
-		for idx := len(maps) - 1; idx >= 0; idx-- {
-			convs := maps[idx]
-			target = convs.Call(target, true)
-		}
-		for i := 0; i < len(seeds); i += 2 {
-			min, max := seeds[i], seeds[i+1]
-			if min <= target && target <= max {
-				isSeed = true
-				break
-			}
-		}
-		if isSeed {
-			return finalTarget
-		}
-	}
-	panic("not found")
-}
-
-func SecondImproved(seeds []int, maps []convs) int {
 	source_ranges := []int{}
 	for idx := range seeds {
-		if idx%2 == 0 {
+		if idx%2 != 0 {
 			continue
 		}
-		source_ranges = append(source_ranges, seeds[idx-1], seeds[idx]+seeds[idx-1])
+		source_ranges = append(source_ranges, seeds[idx], seeds[idx]+seeds[idx+1])
 	}
-	idx := 0
-	for {
-		if idx >= len(source_ranges) {
-			break
-		}
-		for _, convs := range maps {
-			min, max := source_ranges[idx], source_ranges[idx+1]
-			for _, conv := range convs {
-				interMin, interMax, ok := intersection(min, max, conv.srcMin, conv.srcMax)
-				if ok {
-					source_ranges[idx] = conv.dstMin + (interMin - min)
-					source_ranges[idx+1] = conv.dstMax + (interMax - max)
-				}
-				if otherRanges := outOfIntersection(min, max, conv.srcMin, conv.srcMax); len(otherRanges) > 0 {
-					source_ranges = append(source_ranges, otherRanges...)
-				}
+	for _, convs := range maps {
+		idx := 0
+		for {
+			if idx >= len(source_ranges) {
 				break
 			}
+			srcBegin, srcEnd := source_ranges[idx], source_ranges[idx+1]
+			for _, conv := range convs {
+				interBegin, interEnd, ok := conv.intersection(srcBegin, srcEnd)
+				if ok {
+					source_ranges[idx] = conv.Call(interBegin)
+					source_ranges[idx+1] = conv.Call(interEnd)
+					source_ranges = append(source_ranges, conv.outOfIntersection(srcBegin, srcEnd)...)
+					break
+				}
+			}
+			idx += 2
 		}
-		idx += 2
 	}
 	return slices.Min(source_ranges)
 }
@@ -208,7 +155,7 @@ func TestDay05(t *testing.T) {
 	r.Equal(35, First(exSeeds, exMaps), "example p1")
 	r.Equal(177942185, First(seeds, maps), "input p1")
 	r.Equal(46, Second(exSeeds, exMaps), "example p2")
-	// r.Equal(69841803, Second(seeds, maps), "input p2")
+	r.Equal(69841803, Second(seeds, maps), "input p2")
 }
 
 func BenchmarkDay05(b *testing.B) {

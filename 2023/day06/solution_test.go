@@ -1,4 +1,4 @@
-package dayXX
+package day06
 
 import (
 	"bufio"
@@ -34,7 +34,7 @@ func Second(input []string) interface{} {
 	return nil
 }
 
-func TestDayXX(t *testing.T) {
+func TestDay06(t *testing.T) {
 	r := R.New(t)
 	example := ReadInput(exampleFile)
 	input := ReadInput(inputFile)
@@ -44,7 +44,7 @@ func TestDayXX(t *testing.T) {
 	r.Equal(nil, Second(input), "input p2")
 }
 
-func BenchmarkDayXX(b *testing.B) {
+func BenchmarkDay06(b *testing.B) {
 	start := time.Now()
 	n := 0
 	for i := 0; i < b.N; i++ {
