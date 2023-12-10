@@ -1,4 +1,4 @@
-package dayXX
+package day11
 
 import (
 	"bufio"
@@ -30,7 +30,7 @@ func Solve(input []string) (p1 int, p2 int) {
 	return
 }
 
-func TestDayXX(t *testing.T) {
+func TestDay11(t *testing.T) {
 	r := R.New(t)
 	p1Ex, p2Ex := Solve(ReadInput(example))
 	r.Equal(0, p1Ex, "example p1")
@@ -40,7 +40,7 @@ func TestDayXX(t *testing.T) {
 	r.Equal(0, p2, "input p2")
 }
 
-func BenchmarkDayXX(b *testing.B) {
+func BenchmarkDay11(b *testing.B) {
 	start := time.Now()
 	n := 0
 	for i := 0; i < b.N; i++ {
