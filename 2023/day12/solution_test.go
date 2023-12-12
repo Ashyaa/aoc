@@ -17,95 +17,85 @@ const (
 	example = "./example.txt"
 )
 
+var (
+	cache = make(map[string]int)
+)
+
+func cachedRecursion(s string, counts []int) int {
+	cacheKey := s
+	for _, count := range counts { // build cache key
+		cacheKey += "." + strconv.Itoa(count)
+	}
+	if v, ok := cache[cacheKey]; ok { // cache hit
+		return v
+	}
+	if len(s) == 0 {
+		if len(counts) == 0 {
+			return 1
+		}
+		return 0
+	}
+	head, tail := s[0], s[1:]
+	switch head {
+	case '?': // recurse over the two possibilities
+		return cachedRecursion("."+tail, counts) + cachedRecursion("#"+tail, counts)
+	case '.': // no spring: recurse on the tail
+		res := cachedRecursion(tail, counts)
+		cache[cacheKey] = res
+		return res
+	case '#':
+		if len(counts) == 0 { // spring group found but none expected
+			cache[cacheKey] = 0
+			return 0
+		}
+		if len(s) < counts[0] { // spring group expected but impossible to reach with the remaining characters
+			cache[cacheKey] = 0
+			return 0
+		}
+		if strings.Contains(s[0:counts[0]], ".") { // spring group expected but the n next character do not match
+			cache[cacheKey] = 0
+			return 0
+		}
+		if len(counts) > 1 { // more groups remain
+			if len(s) < counts[0]+1 || s[counts[0]] == '#' { // impossible to have one more group, or current group is too long
+				cache[cacheKey] = 0
+				return 0
+			}
+			cache[cacheKey] = cachedRecursion(s[counts[0]+1:], counts[1:])
+			return cache[cacheKey]
+		} else { // it was the last group
+			cache[cacheKey] = cachedRecursion(s[counts[0]:], counts[1:])
+			return cache[cacheKey]
+		}
+	}
+	return 0
+}
+
 // ReadInput retrieves the content of the input file
 func ReadInput(filepath string) (res []string) {
 	s, _ := os.Open(filepath)
 	sc := bufio.NewScanner(s)
 	for sc.Scan() {
-		// parsing here...
 		res = append(res, sc.Text())
 	}
 	return
 }
 
-func isValid(buffer []rune, counts []int) bool {
-	fields := strings.Fields(string(buffer))
-	if len(fields) != len(counts) {
-		return false
-	}
-	for idx, f := range fields {
-		c := counts[idx]
-		if len(f) != c {
-			return false
-		}
-	}
-	return true
-}
-
-func missingIndexes(s string) (res []int) {
-	for idx, c := range s {
-		if c == '?' {
-			res = append(res, idx)
-		}
-	}
-	return
-}
-
-func newSprings(combination, nbBits int) (res []int, sum int) {
-	for shift := 0; shift < nbBits; shift++ {
-		mask := 1 << shift
-		bit := (combination & mask) >> shift
-		res = append(res, bit)
-		sum += bit
-	}
-	return
-}
-
-func compute(s, counts string) (res int) {
-	springs := []int{}
-	totalSprings := 0
-	for _, rawCount := range strings.Split(counts, ",") {
-		count, _ := strconv.Atoi(rawCount)
-		totalSprings += count
-		springs = append(springs, count)
-	}
-	curNbSprings := strings.Count(s, "#")
-	toFind := totalSprings - curNbSprings
-	missingIdxs := missingIndexes(s)
-	nbMissing := len(missingIdxs)
-	maxCombination := 1
-	for i := 1; i <= toFind; i++ {
-		maxCombination += 1 << (nbMissing - i)
-	}
-	for combination := (1 << toFind) - 1; combination < maxCombination; combination++ {
-		toAdd, sum := newSprings(combination, nbMissing)
-		if sum != toFind {
-			continue
-		}
-		buffer := []rune(strings.ReplaceAll(s, ".", " "))
-		for idx, newSpring := range toAdd {
-			newChar := ' '
-			if newSpring == 1 {
-				newChar = '#'
-			}
-			buffer[missingIdxs[idx]] = newChar
-		}
-		if isValid(buffer, springs) {
-			res += 1
-		}
-	}
-	return
-}
-
 func Solve(input []string) (p1 int, p2 int) {
-	for _, s := range input {
-		tmp := strings.Split(s, " ")
-		p1 += compute(tmp[0], tmp[1])
-		// s1, s2 := tmp[0], tmp[1]
-		// for i := 0; i < 4; i++ {
-		// 	s1 += "?" + tmp[0]
-		// 	s2 += "?" + tmp[1]
-		// }
+	for _, line := range input {
+		tmp := strings.Split(line, " ")
+		counts := []int{}
+		for _, rawGrp := range strings.Split(tmp[1], ",") {
+			grp, _ := strconv.Atoi(rawGrp)
+			counts = append(counts, grp)
+		}
+		p1 += cachedRecursion(tmp[0], counts)
+		s, countsP2 := tmp[0], counts
+		for i := 0; i < 4; i++ {
+			s += "?" + tmp[0]
+			counts = append(countsP2, counts...)
+		}
+		p2 += cachedRecursion(s, counts)
 	}
 	return
 }
@@ -114,17 +104,17 @@ func TestDay12(t *testing.T) {
 	r := R.New(t)
 	p1Ex, p2Ex := Solve(ReadInput(example))
 	r.Equal(21, p1Ex, "example p1")
-	// r.Equal(525152, p2Ex, "example p2")
-	r.Equal(0, p2Ex, "example p2")
+	r.Equal(525152, p2Ex, "example p2")
 	p1, p2 := Solve(ReadInput(input))
 	r.Equal(7236, p1, "input p1")
-	r.Equal(0, p2, "input p2")
+	r.Equal(11607695322318, p2, "input p2")
 }
 
 func BenchmarkDay12(b *testing.B) {
 	start := time.Now()
 	n := 0
 	for i := 0; i < b.N; i++ {
+		cache = map[string]int{}
 		Solve(ReadInput(input))
 	}
 	elapsed := time.Since(start)
