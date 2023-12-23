@@ -185,8 +185,8 @@ func collapse(above, below [][]int, idx int) (res int) {
 		cur := q[0]
 		q = q[1:]
 		for _, other := range above[cur] {
-			_, ok := falls[other]
-			if all(below[other], falls) && !ok {
+			_, alreadyFalling := falls[other]
+			if all(below[other], falls) && !alreadyFalling {
 				falls[other] = true
 				q = append(q, other)
 				res++
