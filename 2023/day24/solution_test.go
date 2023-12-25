@@ -37,14 +37,6 @@ type Line struct {
 	a, b float64
 }
 
-// func (h Line) At(t float64) Vector {
-// 	return Vector{
-// 		h.pt.x + t*h.v.x,
-// 		h.pt.y + t*h.v.y,
-// 		h.pt.z + t*h.v.z,
-// 	}
-// }
-
 func (l *Line) Affine(mi, ma float64) (float64, float64) {
 	if l.a != 0 && l.b != 0 {
 		return l.a, l.b
@@ -75,18 +67,6 @@ func (l *Line) Affine(mi, ma float64) (float64, float64) {
 	return l.a, l.b
 }
 
-// func DotProduct(a, b Vector) float64 {
-// 	return a.x*b.x + a.y*b.y + a.z*b.z
-// }
-
-// func CrossProduct(a, b Vector) Vector {
-// 	return Vector{
-// 		a.y*b.z - a.z*b.y,
-// 		a.z*b.x - a.x*b.z,
-// 		a.x*b.y - a.y*b.x,
-// 	}
-// }
-
 func NewStraightLine(line string) Line {
 	fields := strings.Fields(lineReplacer.Replace(line))
 	return Line{
@@ -102,21 +82,6 @@ func NewStraightLine(line string) Line {
 		},
 	}
 }
-
-// func (h Line) Intersects(other Line) bool {
-// 	a := CrossProduct(h.v, other.v)
-// 	dot := DotProduct(a, a)
-// 	if dot == 0 {
-// 		return false
-// 	}
-// 	b := CrossProduct(Vector{
-// 		other.pt.x - h.pt.x,
-// 		other.pt.y - h.pt.y,
-// 		other.pt.z - h.pt.z,
-// 	}, other.v)
-// 	t := DotProduct(b, a) / dot
-// 	return float64(int(t)) == t
-// }
 
 // ReadInput retrieves the content of the input file
 func ReadInput(filepath string) (res []Line) {
