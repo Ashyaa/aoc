@@ -1,3 +1,5 @@
+github.com/AbhiAgarwal/go-unionfind v0.0.0-20150127044148-32680b9c1568 h1:4wZ4CrRCp2/I/vfnGTxIP1JTdGg6hNLIbeNrai6uPzg=
+github.com/AbhiAgarwal/go-unionfind v0.0.0-20150127044148-32680b9c1568/go.mod h1:N8BPs576XPEvx2/uzkHkhbx1aqzNAV9RbEIn4e2ZT5w=
 github.com/RyanCarrier/dijkstra v1.3.0 h1:lqrLMwKy8PtyDpWqZpcbzr9KkqnLJrDdQ9u3iNyNxm8=
 github.com/RyanCarrier/dijkstra v1.3.0/go.mod h1:9egjhC7eVsfREX6NrYS+1wHzk9C/9v2Cz26/bqpjjTc=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
@@ -9,6 +11,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
+github.com/twmb/algoimpl v0.0.0-20170717182524-076353e90b94 h1:RVeQNVS7eoXqFemL1LnyzV7yuijHlBtiq6lH5T/mljw=
+github.com/twmb/algoimpl v0.0.0-20170717182524-076353e90b94/go.mod h1:+E0GZE9c8UBk2GYXo9mPIHAtmmBkJlSWCdzLMcsCWV0=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
