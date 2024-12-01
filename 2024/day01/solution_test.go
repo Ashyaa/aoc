@@ -3,7 +3,11 @@ package day01
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
+	"sort"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -16,28 +20,46 @@ const (
 )
 
 // ReadInput retrieves the content of the input file
-func ReadInput(filepath string) (res []string) {
+func ReadInput(filepath string) (l1, l2 []int) {
 	s, _ := os.Open(filepath)
 	sc := bufio.NewScanner(s)
 	for sc.Scan() {
 		// parsing here...
-		res = append(res, sc.Text())
+		raws := strings.Split(sc.Text(), "   ")
+		n1, _ := strconv.Atoi(raws[0])
+		n2, _ := strconv.Atoi(raws[1])
+		l1 = append(l1, n1)
+		l2 = append(l2, n2)
 	}
 	return
 }
 
-func Solve(input []string) (p1 int, p2 int) {
+func Solve(l1, l2 []int) (p1 int, p2 int) {
+	sort.Ints(l1)
+	sort.Ints(l2)
+	counts := map[int]int{}
+	for _, n := range l2 {
+		if _, ok := counts[n]; !ok {
+			counts[n] = 0
+		}
+		counts[n] += 1
+	}
+	for i, n1 := range l1 {
+		n2 := l2[i]
+		p1 += int(math.Abs(float64(n2 - n1)))
+		p2 += n1 * counts[n1]
+	}
 	return
 }
 
 func TestDay01(t *testing.T) {
 	r := R.New(t)
 	p1Ex, p2Ex := Solve(ReadInput(example))
-	r.Equal(0, p1Ex, "example p1")
-	r.Equal(0, p2Ex, "example p2")
+	r.Equal(11, p1Ex, "example p1")
+	r.Equal(31, p2Ex, "example p2")
 	p1, p2 := Solve(ReadInput(input))
-	r.Equal(0, p1, "input p1")
-	r.Equal(0, p2, "input p2")
+	r.Equal(2066446, p1, "input p1")
+	r.Equal(24931009, p2, "input p2")
 }
 
 func BenchmarkDay01(b *testing.B) {
