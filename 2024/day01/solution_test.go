@@ -1,6 +1,7 @@
 package day01
 
 import (
+	"aoc/utils"
 	"bufio"
 	"fmt"
 	"math"
@@ -37,17 +38,12 @@ func ReadInput(filepath string) (l1, l2 []int) {
 func Solve(l1, l2 []int) (p1 int, p2 int) {
 	sort.Ints(l1)
 	sort.Ints(l2)
-	counts := map[int]int{}
-	for _, n := range l2 {
-		if _, ok := counts[n]; !ok {
-			counts[n] = 0
-		}
-		counts[n] += 1
-	}
+	counter := utils.NewCounter[int]()
+	counter.Add(l2...)
 	for i, n1 := range l1 {
 		n2 := l2[i]
 		p1 += int(math.Abs(float64(n2 - n1)))
-		p2 += n1 * counts[n1]
+		p2 += n1 * counter.Count(n1)
 	}
 	return
 }
