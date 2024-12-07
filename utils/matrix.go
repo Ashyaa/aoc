@@ -79,7 +79,7 @@ func (m Matrix[T]) assertY(y int) bool {
 }
 
 // Assert that (x,y) are valid coordinates.
-func (m Matrix[T]) assertCoords(x, y int) bool {
+func (m Matrix[T]) InBounds(x, y int) bool {
 	return m.assertX(x) && m.assertY(y)
 }
 
@@ -137,7 +137,7 @@ func (m *Matrix[T]) SetNeighboursFunc(fn NeighbourFunc) {
 func (m *Matrix[T]) Neighbours(x, y int) (res []Element[T]) {
 	m.requireCoords(x, y)
 	for _, coords := range m.getNeighbours(x, y) {
-		if m.assertCoords(coords[0], coords[1]) {
+		if m.InBounds(coords[0], coords[1]) {
 			res = append(res, Element[T]{
 				X:     coords[0],
 				Y:     coords[1],
