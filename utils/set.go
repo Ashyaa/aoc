@@ -110,3 +110,10 @@ func (s Set[T]) Substract(others ...Set[T]) Set[T] {
 	}
 	return res
 }
+
+func (s Set[T]) ToSlice() (res []T) {
+	for item := range s {
+		res = append(res, item)
+	}
+	return
+}
