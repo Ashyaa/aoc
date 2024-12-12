@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -31,7 +32,6 @@ func ReadInput(filepath string) U.Matrix[rune] {
 	sc := bufio.NewScanner(s)
 	buf := [][]rune{}
 	for sc.Scan() {
-		// parsing here...
 		buf = append(buf, []rune(sc.Text()))
 	}
 	return U.NewMatrix(buf)
@@ -72,43 +72,37 @@ func nbSides(sides []U.Coord) int {
 		}
 		sideList := []U.Coord{side}
 		remainder := []U.Coord{}
-		ok := true
-		for ok {
-			sideLen := len(sideList)
-			for _, other := range buffer {
-				add := false
-				if other.Z != side.Z {
-					remainder = append(remainder, other)
-					continue
+		for _, other := range buffer {
+			add := false
+			if other.Z != side.Z {
+				remainder = append(remainder, other)
+				continue
+			}
+			if vertical && other.Y == ax {
+				if other.X == max+1 {
+					max = max + 1
+					add = true
+				} else if other.X == min-1 {
+					min = min - 1
+					add = true
 				}
-				if vertical && other.Y == ax {
-					if other.X == max+1 {
-						max = max + 1
-						add = true
-					} else if other.X == min-1 {
-						min = min - 1
-						add = true
-					}
-				} else if !vertical && other.X == ax {
-					if other.Y == max+1 {
-						max = max + 1
-						add = true
-					} else if other.Y == min-1 {
-						min = min - 1
-						add = true
-					}
-				}
-				if add {
-					sideList = append(sideList, other)
-				} else {
-					remainder = append(remainder, other)
+			} else if !vertical && other.X == ax {
+				if other.Y == max+1 {
+					max = max + 1
+					add = true
+				} else if other.Y == min-1 {
+					min = min - 1
+					add = true
 				}
 			}
-			ok = sideLen != len(sideList)
-			buffer = remainder
-			remainder = []U.Coord{}
+			if add {
+				sideList = append(sideList, other)
+			} else {
+				remainder = append(remainder, other)
+			}
 		}
 		res = append(res, sideList)
+		buffer = remainder
 	}
 	return len(res)
 }
@@ -128,8 +122,16 @@ func perimeter(input U.Matrix[rune], region U.Set[U.Coord]) (int, int) {
 		}
 	}
 
-	res := len(sides)
-	return res, nbSides(sides)
+	sort.Slice(sides, func(i, j int) bool {
+		if sides[i].X == sides[j].X {
+			if sides[i].Y == sides[j].Y {
+				return sides[i].Z < sides[j].Z
+			}
+			return sides[i].Y < sides[j].Y
+		}
+		return sides[i].X < sides[j].X
+	})
+	return len(sides), nbSides(sides)
 }
 
 func Solve(input U.Matrix[rune]) (p1 int, p2 int) {
@@ -141,10 +143,10 @@ func Solve(input U.Matrix[rune]) (p1 int, p2 int) {
 				continue
 			}
 			region := floodFill(input, current)
+			visited = visited.Union(region)
 			perim, sides := perimeter(input, region)
 			p1 += len(region) * perim
 			p2 += len(region) * sides
-			visited = visited.Union(region)
 		}
 	}
 	return
