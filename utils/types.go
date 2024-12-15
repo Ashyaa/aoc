@@ -5,6 +5,15 @@ import (
 	"strings"
 )
 
+var (
+	Directions = []Coord{
+		{X: -1, Y: 0},
+		{X: 0, Y: 1},
+		{X: 1, Y: 0},
+		{X: 0, Y: -1},
+	}
+)
+
 // ToInt is an error-free strconv.Atoi
 func ToInt(s string) int {
 	res, err := strconv.Atoi(s)

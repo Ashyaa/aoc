@@ -55,7 +55,7 @@ func default_line(width int) (res []rune) {
 	return
 }
 
-func isTree(rbs []Coord, height, width, iter int) bool {
+func isTree(rbs []Coord, height, width int) bool {
 	runes := make([][]rune, 0)
 	for range height {
 		runes = append(runes, default_line(width))
@@ -112,7 +112,7 @@ func Solve(input []robot, width, height int) (p1 int, p2 int) {
 			final := simulate(rob, width, height, i)
 			state = append(state, final)
 		}
-		if isTree(state, height, width, i) {
+		if isTree(state, height, width) {
 			p2 = i
 			break
 		}
