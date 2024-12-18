@@ -33,6 +33,10 @@ func ToCoords(s, sep string) (res Coord) {
 	return
 }
 
+func ToCoordsComma(s string) (res Coord) {
+	return ToCoords(s, ",")
+}
+
 type Coord struct {
 	X, Y, Z int
 }
