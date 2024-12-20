@@ -37,7 +37,7 @@ func TestNewPriorityQueue(t *testing.T) {
 	for i, it := range items {
 		got := (*p.q).data[i]
 		r.Equal(it, got.value)
-		r.Equal(1, got.priority)
+		r.Equal(0, got.Priority)
 	}
 }
 
@@ -49,7 +49,7 @@ func TestPriorityQueuePushPop(t *testing.T) {
 	r.Equal(3, p.Len())
 	got := ((*p.q).data)[0]
 	r.Equal(ref, got.value)
-	r.Equal(-1, got.priority)
+	r.Equal(-1, got.Priority)
 	r.Equal(0, got.index)
 	elem := p.Pop()
 	r.Equal(2, p.Len())
@@ -65,7 +65,7 @@ func TestPriorityReverseOrder(t *testing.T) {
 	p.SetOrder(false)
 	got := ((*p.q).data)[0]
 	r.Equal(ref, got.value)
-	r.Equal(ref.value, got.priority)
+	r.Equal(ref.value, got.Priority)
 	r.Equal(0, got.index)
 	elem := p.Pop()
 	r.Equal(2, p.Len())

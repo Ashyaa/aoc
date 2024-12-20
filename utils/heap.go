@@ -4,19 +4,19 @@ import "container/heap"
 
 // TODO: Maybe
 
-type queueItem[T any] struct {
-	index, priority int
+type HeapItem[T any] struct {
+	index, Priority int
 	value           T
 }
 
 type pQueue[T any] struct {
 	increasing bool
-	data       []*queueItem[T]
+	data       []*HeapItem[T]
 }
 
-func newPQueue[T any](items ...queueItem[T]) pQueue[T] {
+func newPQueue[T any](items ...HeapItem[T]) pQueue[T] {
 	res := pQueue[T]{
-		data:       make([]*queueItem[T], 0),
+		data:       make([]*HeapItem[T], 0),
 		increasing: true,
 	}
 	for _, item := range items {
@@ -31,9 +31,9 @@ func (pq pQueue[T]) Len() int { return len(pq.data) }
 
 func (pq pQueue[T]) Less(i, j int) bool {
 	if pq.increasing {
-		return pq.data[i].priority < pq.data[j].priority
+		return pq.data[i].Priority < pq.data[j].Priority
 	}
-	return pq.data[i].priority > pq.data[j].priority
+	return pq.data[i].Priority > pq.data[j].Priority
 }
 
 func (pq pQueue[T]) Swap(i, j int) {
@@ -44,7 +44,7 @@ func (pq pQueue[T]) Swap(i, j int) {
 
 func (pq *pQueue[T]) Push(x any) {
 	n := len((*pq).data)
-	it := x.(queueItem[T])
+	it := x.(HeapItem[T])
 	it.index = n
 	(*pq).data = append((*pq).data, &it)
 }
@@ -69,11 +69,11 @@ type PriorityQueue[T any] struct {
 }
 
 // NewPriorityQueue creates a PriorityQueue for the wanted type. All items are given
-// priority 1.
+// priority 0.
 func NewPriorityQueue[T any](items ...T) PriorityQueue[T] {
-	heapItems := Map(items, func(item T) queueItem[T] {
-		return queueItem[T]{
-			priority: 1,
+	heapItems := Map(items, func(item T) HeapItem[T] {
+		return HeapItem[T]{
+			Priority: 0,
 			value:    item,
 		}
 	})
@@ -92,8 +92,8 @@ func (p *PriorityQueue[T]) SetOrder(increasing bool) {
 
 // Push an item to the queue with given priority.an item has more
 func (p *PriorityQueue[T]) Push(x T, priority int) {
-	heap.Push(p.q, queueItem[T]{
-		priority: priority,
+	heap.Push(p.q, HeapItem[T]{
+		Priority: priority,
 		value:    x,
 	})
 }
@@ -107,4 +107,13 @@ func (p *PriorityQueue[T]) Pop() T {
 // Len returns the number of items in the priority queue.
 func (p *PriorityQueue[T]) Len() int {
 	return p.q.Len()
+}
+
+// Priority returns the current 'highest' priority, where 'highest' is relative
+// to the currently set priority order
+func (p *PriorityQueue[T]) Priority() int {
+	if p.q.Len() == 0 {
+		return 0
+	}
+	return p.q.data[0].Priority
 }
