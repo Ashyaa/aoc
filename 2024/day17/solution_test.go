@@ -4,6 +4,8 @@ import (
 	. "aoc/utils"
 	"fmt"
 	"os"
+	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -150,26 +152,45 @@ func execute(a int, program []int) string {
 func Solve(a int, programStr string) (p1 string, p2 int) {
 	program := Map(strings.Split(programStr, ","), ToInt)
 	p1 = execute(a, program)
-	exp := programStr + ","
 
-	for i := 100100011178010; i > 0; i++ { // bruteforce ain't it
-		sss := execute(i, program)
-		if sss == exp {
-			p2 = i
-			break
-		}
+	reversedProgram := slices.Clone(program)
+	slices.Reverse(reversedProgram)
+	candidates := Set[int]{}
+	candidates.Add(0)
+	wanted := ""
+
+	if a == 729 {
+		return
 	}
+
+	for _, n := range reversedProgram {
+		wanted = strconv.Itoa(n) + "," + wanted
+		nextCandidates := Set[int]{}
+
+		for candidate := range candidates {
+			shifted := candidate << 3
+
+			for i := range 8 {
+				next := shifted + i
+				out := execute(next, program)
+				if out == wanted {
+					nextCandidates.Add(next)
+				}
+			}
+		}
+		candidates = nextCandidates
+	}
+	p2 = slices.Min(candidates.ToSlice())
 	return
 }
 
 func TestDay17(t *testing.T) {
 	r := R.New(t)
-	// p1Ex, p2Ex := Solve(ReadInput(example))
-	// r.Equal("4,6,3,5,6,3,5,2,1,0,", p1Ex, "example p1")
-	// r.Equal(0, p2Ex, "example p2")
+	p1Ex, _ := Solve(ReadInput(example))
+	r.Equal("4,6,3,5,6,3,5,2,1,0,", p1Ex, "example p1")
 	p1, p2 := Solve(ReadInput(input))
 	r.Equal("1,5,7,4,1,6,0,3,0,", p1, "input p1")
-	r.Equal(0, p2, "input p2")
+	r.Equal(108107574778365, p2, "input p2")
 }
 
 func BenchmarkDay17(b *testing.B) {
