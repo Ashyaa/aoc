@@ -19,7 +19,7 @@ def read_input(filename: str = "input.txt") -> List[Tuple[str, int]]:
 
 
 @show
-def first(inp) -> int:
+def first(inp: List[Tuple[str, int]]) -> int:
     pos = 50
     res = 0
     for dir, nb in inp:
@@ -30,14 +30,12 @@ def first(inp) -> int:
 
 
 @show
-def second(inp) -> int:
+def second(inp: List[Tuple[str, int]]) -> int:
     pos = 50
     res = 0
     for dir, nb in inp:
-        if dir == "R":
-            res += (nb + pos) // 100
-        else:
-            res += abs(-nb - pos) // 100
+        s = pos if dir == "R" else (100-pos)%100
+        res += (nb + s) // 100
         pos = (pos + nb if dir == "R" else pos - nb) % 100
     return res
 
@@ -47,11 +45,11 @@ def test_example() -> None:
     with contextlib.redirect_stdout(None):
         inp = read_input("example.txt")
         assert first(inp) == 3
-    assert second(inp) == 6
+        assert second(inp) == 6
 
 
 if __name__ == "__main__":
     test_example()
     inp = read_input()
-    first(inp)  # p1
-    second(inp)  # p2
+    first(inp)  # 1040
+    second(inp)  # 6027
