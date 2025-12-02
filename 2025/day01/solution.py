@@ -34,14 +34,13 @@ def second(inp: List[Tuple[str, int]]) -> int:
     pos = 50
     res = 0
     for dir, nb in inp:
-        s = pos if dir == "R" else (100-pos)%100
+        s = pos if dir == "R" else (100 - pos) % 100
         res += (nb + s) // 100
         pos = (pos + nb if dir == "R" else pos - nb) % 100
     return res
 
 
 def test_example() -> None:
-    assert (abs(50 - 1000) // 100) + (50 < 1000) == 10
     with contextlib.redirect_stdout(None):
         inp = read_input("example.txt")
         assert first(inp) == 3
