@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import contextlib
 from pathlib import Path
-from typing import *
+from typing import Tuple
 
 from AoC.util import show
 
@@ -15,25 +14,15 @@ def read_input(filename: str = "input.txt") -> None:
         pass
 
 
-@show
-def first(inp) -> None:
-    pass
-
-
-@show
-def second(inp) -> None:
-    pass
+def solve(inp) -> Tuple[int, int]:
+    return 0, 0
 
 
 def test_example() -> None:
-    with contextlib.redirect_stdout(None):
-        inp = read_input("example.txt")
-        assert first(inp) == None
-        assert second(inp) == None
+    inp = read_input("example.txt")
+    assert (r := solve(inp)) == (0, 0), r
 
 
 if __name__ == "__main__":
     test_example()
-    inp = read_input()
-    first(inp)  # p1
-    second(inp)  # p2
+    show(solve)(read_input())  # p1, p2
